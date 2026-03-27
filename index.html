@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JS Solitaire Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ========== ホーム画面 ========== -->
+    <div id="home-screen">
+        <!-- 背景の装飾カード -->
+        <div class="deco-cards">
+            <div class="deco-card dc1">A<br>♠</div>
+            <div class="deco-card dc2">K<br>♥</div>
+            <div class="deco-card dc3">Q<br>♦</div>
+            <div class="deco-card dc4">J<br>♣</div>
+            <div class="deco-card dc5">10<br>♠</div>
+            <div class="deco-card dc6">A<br>♥</div>
+        </div>
+
+        <div class="home-content">
+            <div class="home-title">
+                <span class="suit-icon red">♥</span>
+                <span class="title-text">SOLITAIRE</span>
+                <span class="suit-icon black">♠</span>
+            </div>
+            <p class="home-subtitle">Klondike Solitaire</p>
+
+            <div id="platform-select" class="platform-select">
+                <button id="btn-pc" class="platform-btn">
+                    <div class="platform-icon">🖥️</div>
+                    <div class="platform-label">PC / Desktop</div>
+                    <div class="platform-desc">マウス操作向け</div>
+                </button>
+                <button id="btn-mobile" class="platform-btn">
+                    <div class="platform-icon">📱</div>
+                    <div class="platform-label">Smartphone</div>
+                    <div class="platform-desc">縦向き・横向き・タッチ操作向け</div>
+                </button>
+            </div>
+
+            <div id="mobile-setup-panel" class="handedness-panel hidden">
+                <div class="handedness-title">スマホのレイアウトを選んでください</div>
+                <div class="handedness-subtitle">縦向き・横向きの切り替えと、右手用 / 左手用レイアウトの両方に対応しました</div>
+
+                <div class="setup-section">
+                    <div class="setup-label">画面の向き</div>
+                    <div class="setup-option-buttons">
+                        <button id="btn-orientation-landscape" class="setup-option-btn selected" type="button">
+                            <span class="setup-option-icon">↔️</span>
+                            <span class="setup-option-title">横向き</span>
+                            <span class="setup-option-desc">広く見やすい標準レイアウト</span>
+                        </button>
+                        <button id="btn-orientation-portrait" class="setup-option-btn" type="button">
+                            <span class="setup-option-icon">↕️</span>
+                            <span class="setup-option-title">縦向き</span>
+                            <span class="setup-option-desc">片手でも遊びやすい縦長表示</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setup-section">
+                    <div class="setup-label">持ち手</div>
+                    <div class="setup-option-buttons">
+                        <button id="btn-handedness-right" class="setup-option-btn selected" type="button">
+                            <span class="setup-option-icon">🤚</span>
+                            <span class="setup-option-title">右手用</span>
+                            <span class="setup-option-desc">通常レイアウト</span>
+                        </button>
+                        <button id="btn-handedness-left" class="setup-option-btn" type="button">
+                            <span class="setup-option-icon">🫲</span>
+                            <span class="setup-option-title">左手用</span>
+                            <span class="setup-option-desc">左右反転レイアウト</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btn-mobile-start" class="btn primary mobile-start-btn" type="button">この設定でゲーム開始</button>
+                <button id="btn-mobile-back" class="handedness-back-btn" type="button">← 戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 向き警告（スマホ縦向き時） ========== -->
+    <div id="rotate-warning" class="hidden">
+        <div class="rotate-content">
+            <div class="rotate-icon">📱</div>
+            <p id="rotate-warning-ja">スマホを横向きにしてください</p>
+            <p id="rotate-warning-en" style="font-size:0.8rem; opacity:0.7">Please rotate your device to landscape</p>
+        </div>
+    </div>
+
+    <!-- ========== ゲーム画面 ========== -->
+    <div id="app" class="hidden">
+        <header>
+            <div class="header-left">
+                <h1>SOLITAIRE</h1>
+                <div class="score-board">
+                    <span>SCORE: <b id="score">0</b></span>
+                    <span>MOVES: <b id="moves">0</b></span>
+                    <span>TIME: <b id="timer">00:00</b></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <select id="difficulty-select" class="mode-select">
+                    <option value="easy">Easy 🔰</option>
+                    <option value="normal" selected>Normal ⭐</option>
+                    <option value="hard">Hard 💀 Draw3</option>
+                </select>
+                <button id="btn-auto" class="btn primary" style="display: none;">Auto 🚀</button>
+                <button id="btn-hint" class="btn">Hint</button>
+                <button id="btn-undo" class="btn" disabled>Undo</button>
+                <button id="btn-home" class="btn">🏠</button>
+                <button id="btn-new-game" class="btn primary">New Game</button>
+            </div>
+        </header>
+
+        <main id="game-board">
+            <div class="top-section">
+                <div class="stock-area">
+                    <div id="stock" class="pile stock">
+                        <div class="reload-icon">↺</div>
+                    </div>
+                    <div id="waste" class="pile waste"></div>
+                </div>
+                <div class="foundation-area">
+                    <div id="foundation-0" class="pile foundation" data-suit="hearts"></div>
+                    <div id="foundation-1" class="pile foundation" data-suit="diamonds"></div>
+                    <div id="foundation-2" class="pile foundation" data-suit="spades"></div>
+                    <div id="foundation-3" class="pile foundation" data-suit="clubs"></div>
+                </div>
+            </div>
+
+            <div class="tableau-section">
+                <div id="tableau-0" class="pile tableau"></div>
+                <div id="tableau-1" class="pile tableau"></div>
+                <div id="tableau-2" class="pile tableau"></div>
+                <div id="tableau-3" class="pile tableau"></div>
+                <div id="tableau-4" class="pile tableau"></div>
+                <div id="tableau-5" class="pile tableau"></div>
+                <div id="tableau-6" class="pile tableau"></div>
+            </div>
+        </main>
+
+        <div id="drag-layer"></div>
+
+        <!-- スコアポップアップ用コンテナ -->
+        <div id="score-popup-layer"></div>
+
+        <!-- 紙吹雪キャンバス -->
+        <canvas id="confetti-canvas"></canvas>
+
+        <!-- ウィン画面 -->
+        <div id="win-screen" class="modal hidden">
+            <div class="modal-content">
+                <h2>🎉 YOU WIN! 🎉</h2>
+                <div class="result-stats">
+                    <p>TIME: <span id="win-time">00:00</span></p>
+                    <p>SCORE: <span id="win-score">0</span></p>
+                    <p>MOVES: <span id="win-moves">0</span></p>
+                </div>
+                <div id="best-record" class="best-record hidden"></div>
+                <button id="btn-play-again" class="btn primary">Play Again</button>
+                <button id="btn-win-home" class="btn" style="margin-left:10px;">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="utils.js"></script>
+    <script src="Card.js"></script>
+    <script src="Game.js"></script>
+</body>
+</html>
